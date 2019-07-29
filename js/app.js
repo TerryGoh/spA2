@@ -1,4 +1,4 @@
-const api_url = "https://inec.sg/assignment/retrieve_records.php";
+const api_url = "http://inec.sg/assignment/retrieve_records.php";
 
 function displayPage(divID) {
     var pages = document.getElementsByClassName("page");
@@ -173,6 +173,7 @@ var createMapMarker = (productName, position) => {
 
     });
     marker.location = position;
+    marker.addListener('click', delMarkerCB);
     return marker;
 }
 
@@ -206,8 +207,7 @@ function addMarkerCB(event) {
     // each marker name and location to be store in localStorage
     markers.push({ name: marker.label, location: marker.location })
     localStorage[productName] = JSON.stringify(markers);
-    marker.addListener('click', delMarkerCB);
-
+ 
     // each marker name and location to be store in UIMarkersArray
     UImarkers.push(marker);
     getMap().UImarkers[productName] = UImarkers;
