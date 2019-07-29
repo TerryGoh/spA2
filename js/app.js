@@ -1,4 +1,4 @@
-const api_url = "http://inec.sg/assignment/retrieve_records.php";
+const api_url = "https://inec.sg/assignment/retrieve_records.php";
 
 function displayPage(divID) {
     var pages = document.getElementsByClassName("page");
