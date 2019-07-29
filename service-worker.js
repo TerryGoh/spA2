@@ -1,6 +1,6 @@
 const cacheName = 'v1';
 
-const cacheAssets =
+var cacheAssets =
     ["index.html",
         "js/app.js",
         "index.css",
@@ -21,10 +21,41 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker
             .register("service-worker.js")
-            .then(reg => console.log("Service Worker : Registered"))
+            .then(reg => {
+                console.log("Service Worker : Registered")
+
+                if (Notification.permission === 'denied') {
+                    alert('User has blocked push notification.');
+                    return;
+                }
+
+                //Check `push notification` is supported or not
+                if (!('PushManager' in window)) {
+                    alert('Sorry, Push notification isn\'t supported in your browser.');
+                    return;
+                }
+                alert("1. Push Notification Subscribe successful!!")
+                subscribePushNotification();
+            })
             .catch(err => console.log(`Service Worker : Error : ${err}`));
     });
 }
+
+function subscribePushNotification() {
+
+    navigator.serviceWorker.ready.then(registration => {
+        registration.pushManager.subscribe(
+            { userVisibleOnly: true })
+            .then(subscription => {
+                console.log(subscription.endpoint);
+                alert("Push Notification Subscribe successful!!")
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    });
+}
+
 
 // Install Service Worker
 self.addEventListener("install", e => {
@@ -34,9 +65,9 @@ self.addEventListener("install", e => {
             .open(cacheName)
             .then(cache => {
                 console.log('Service Worker: Caching Files')
-                cache.addAll(cacheAssets);
+                return cache.addAll(cacheAssets);
             })
-            .then( ()=>self.skipWaiting() )
+            .then(() => self.skipWaiting())
     );
 });
 
@@ -46,12 +77,12 @@ self.addEventListener("activate", function (e) {
     console.log("Service worker Activated");
     // remove unwanted caches
     e.waitUntil(
-        caches.keys().then(cacheNames=>{
+        caches.keys().then(cacheNames => {
             return Promise.all(
-                cacheNames.map(cache =>{
-                    if(cache !== cacheName) {
+                cacheNames.map(cache => {
+                    if (cache !== cacheName) {
                         console.log('Service Worker: Clearing Old Cache');
-                        return caches.delete(cache) ;
+                        return caches.delete(cache);
                     }
                 })
             )
@@ -60,10 +91,10 @@ self.addEventListener("activate", function (e) {
 });
 
 // Call Fetch Event
-self.addEventListener('fetch',e => {
+self.addEventListener('fetch', e => {
     console.log('Service Worker: Fetching');
-    e.respondWith(fetch(e.request).catch(() => caches.match(e.request))) ;    
-});
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+})
 
 
 
